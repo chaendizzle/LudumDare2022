@@ -23,7 +23,7 @@ public class ClockMonitor : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        int seconds = God.secondsMax - God.Instance.seconds;
+        int seconds = God.secondsMax - God.Instance.VisibleSeconds;
         if (prev != seconds && God.Instance.seconds < God.secondsMax)
         {
             audioSource.Play();

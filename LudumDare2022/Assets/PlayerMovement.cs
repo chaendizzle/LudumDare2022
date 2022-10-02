@@ -20,7 +20,7 @@ public class PlayerMovement : MonoBehaviour
     Vector2 moveInput;
     Rigidbody2D rb;
     float scaleX;
-    bool canJump;
+    bool canJump = true;
 
     float gravityBase;
     float gravityCur;
@@ -34,6 +34,10 @@ public class PlayerMovement : MonoBehaviour
     AudioSource audioSource;
     public AudioClip FallScream;
     public AudioClip FallExplosion;
+    public AudioClip LandSFX;
+    public AudioClip JumpSFX;
+
+    bool prevGrounded = true;
 
     // Start is called before the first frame update
     void Start()
@@ -58,21 +62,27 @@ public class PlayerMovement : MonoBehaviour
     private void FixedUpdate()
     {
         Move();
-        gravityCur = Mathf.Pow(Mathf.Lerp(1.2f, 0f, (float)God.Instance.seconds / God.secondsMax), 2) * gravityBase;
+        gravityCur = Mathf.Pow(Mathf.Lerp(1.2f, 0.2f, (float)God.Instance.seconds / God.secondsMax), 2) * gravityBase;
     }
 
     public void Move()
     {
         Flip();
         float acc = Time.deltaTime * moveInput.x == 0 ? fric : accel;
-        if (!IsGrounded())
+        bool grounded = IsGrounded();
+        if (grounded && !prevGrounded)
+        {
+            audioSource.PlayOneShot(LandSFX, 0.5f);
+            GetComponent<Animator>().SetTrigger("Land");
+        }
+        prevGrounded = grounded;
+        if (!grounded)
         {
             acc *= 0.3f;
         }
         else
         {
             rb.gravityScale = gravityCur;
-            canJump = true;
         }
         rb.velocity = new Vector2(Mathf.MoveTowards(rb.velocity.x, moveInput.x * moveSpeed, acc), rb.velocity.y);
     }
@@ -95,9 +105,11 @@ public class PlayerMovement : MonoBehaviour
         {
             jumpsLeft = jumpsAmount;
         }
-        if (jumpsLeft > 0)
+        if (jumpsLeft > 0 && canJump)
         {
             rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+            audioSource.PlayOneShot(JumpSFX, 0.3f);
+            GetComponent<Animator>().SetTrigger("Jump");
             if (jumpCoroutine != null)
             {
                 StopCoroutine(jumpCoroutine);
@@ -109,6 +121,7 @@ public class PlayerMovement : MonoBehaviour
 
     IEnumerator JumpCoroutine()
     {
+        canJump = false;
         float time = 0f;
         while (true)
         {
@@ -138,7 +151,19 @@ public class PlayerMovement : MonoBehaviour
     {
         if (collision.gameObject.tag == "Killbox" && deathCoroutine == null)
         {
-            deathCoroutine = StartCoroutine(FallCoroutine());
+            if (!God.Instance.Parachute)
+            {
+                deathCoroutine = StartCoroutine(FallCoroutine());
+            }
+            else
+            {
+                StartCoroutine(God.Instance.EndingCoroutine());
+            }
+        }
+        if (collision.gameObject.tag == "AutoDoor")
+        {
+            God.Instance.outside = true;
+            DoorInteractable.UpdateOutside();
         }
     }
     IEnumerator FallCoroutine()

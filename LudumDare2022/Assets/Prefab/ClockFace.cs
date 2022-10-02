@@ -6,6 +6,13 @@ public class ClockFace : MonoBehaviour
 {
     AudioSource audioSource;
     int prev;
+    int prevsec;
+
+    public GameObject HourHand;
+    public GameObject SecondHand;
+
+    public AudioClip bong;
+    public AudioClip tick;
 
     // Start is called before the first frame update
     void Start()
@@ -16,14 +23,19 @@ public class ClockFace : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        int hour = (God.Instance.seconds / 10) % 10;
+        int seconds = God.Instance.VisibleSeconds;
+        int hour = (God.Instance.VisibleSeconds / 10) % 10;
         if (prev != hour && God.Instance.seconds < God.secondsMax)
         {
-            audioSource.PlayOneShot(audioSource.clip, 3f);
+            audioSource.PlayOneShot(bong, 4f);
         }
-        // HourTen.sprite = NumberSprites[(seconds / 100) % 10];
-        // HourOne.sprite = NumberSprites[(seconds / 10) % 10];
-        // SecondOne.sprite = NumberSprites[seconds % 10];
+        if (prevsec != seconds && God.Instance.seconds < God.secondsMax)
+        {
+            audioSource.PlayOneShot(tick, 1f);
+        }
+        HourHand.transform.eulerAngles = new Vector3(0f, 0f, -30f * (seconds / 10));
+        SecondHand.transform.eulerAngles = new Vector3(0f, 0f, -36f * (seconds % 10));
         prev = hour;
+        prevsec = seconds;
     }
 }

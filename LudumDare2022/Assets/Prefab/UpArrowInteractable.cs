@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 public class UpArrowInteractable : MonoBehaviour, Interactable
 {
@@ -59,6 +60,7 @@ public class UpArrowInteractable : MonoBehaviour, Interactable
     IEnumerator ElevatorCoroutine()
     {
         state = State.Pressed;
+        GetComponent<Light2D>().enabled = false;
         audioSource.PlayOneShot(DingSFX);
         yield return new WaitForSeconds(0.5f);
         audioSource.PlayOneShot(ElevDoorSFX);

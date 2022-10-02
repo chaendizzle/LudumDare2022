@@ -8,18 +8,33 @@ public class DoorInteractable : MonoBehaviour, Interactable
 
     public float Dist;
 
+    public AudioClip Door;
+
+    AudioSource audioSource;
+
     public void Interact()
     {
         God.Instance.outside = !God.Instance.outside;
+        UpdateOutside();
+        audioSource.PlayOneShot(Door);
+    }
+    public static void UpdateOutside()
+    {
         var activate = God.Instance.outside ? God.Instance.OutsideObjects : God.Instance.InsideObjects;
         var deactivate = God.Instance.outside ? God.Instance.InsideObjects : God.Instance.OutsideObjects;
         foreach (var go in activate)
         {
-            go.SetActive(true);
+            if (go != null)
+            {
+                go.SetActive(true);
+            }
         }
         foreach (var go in deactivate)
         {
-            go.SetActive(false);
+            if (go != null)
+            {
+                go.SetActive(false);
+            }
         }
     }
     public bool CanInteract(GameObject player)
@@ -30,7 +45,7 @@ public class DoorInteractable : MonoBehaviour, Interactable
     // Start is called before the first frame update
     void Start()
     {
-        
+        audioSource = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
