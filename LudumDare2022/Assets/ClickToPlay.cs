@@ -24,6 +24,10 @@ public class ClickToPlay : MonoBehaviour
             clicked = true;
             StartCoroutine(StartGame());
         }
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Application.Quit();
+        }
     }
 
     IEnumerator StartGame()

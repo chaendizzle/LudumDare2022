@@ -14,6 +14,8 @@ public class ClockFace : MonoBehaviour
     public AudioClip bong;
     public AudioClip tick;
 
+    public CameraShake camShake;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -27,11 +29,12 @@ public class ClockFace : MonoBehaviour
         int hour = (God.Instance.VisibleSeconds / 10) % 10;
         if (prev != hour && God.Instance.seconds < God.secondsMax)
         {
-            audioSource.PlayOneShot(bong, 4f);
+            audioSource.PlayOneShot(bong, 5f);
+            camShake.ShakeCamera(1f, 0.75f);
         }
         if (prevsec != seconds && God.Instance.seconds < God.secondsMax)
         {
-            audioSource.PlayOneShot(tick, 1f);
+            audioSource.PlayOneShot(tick, 2f);
         }
         HourHand.transform.eulerAngles = new Vector3(0f, 0f, -30f * (seconds / 10));
         SecondHand.transform.eulerAngles = new Vector3(0f, 0f, -36f * (seconds % 10));
